@@ -78,9 +78,9 @@ $ubdb->save();
  
  // ? Symbol holding only one character, % symbol holding multiple character as place. 
  
- $get1 = $ubdb->get("users", "username", array("ugur",'?','1') );
+ $get1 = $ubdb->get("users", "username", array("ugur",'?','1') ); // matches such as ugur11
  
- $get2 = $ubdb->get("users", "username", array("ug",'%','1') );
+ $get2 = $ubdb->get("users", "username", array("ug",'%','1') );   // matches such as ugur11 or ugor21
  
  // Joining two data array on one intersect point
  
@@ -95,7 +95,7 @@ $ubdb->save();
                         "userid"     // secondary intersect point
 												
                         );
- 
+ // Will return as an array which is username equals to userid
  
 ## DELETING ##
 
