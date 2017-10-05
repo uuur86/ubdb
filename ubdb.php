@@ -67,7 +67,7 @@ private $table,
     
         foreach ($this->cols[$this->table] as $prkey){
         $this->rows[$this->table][$prkey] = $this->readdb($this->table,$prkey);
-        $index_d = count($this->rows[$this->table][$prkey])-1; 
+        $index_d = count($this->rows[$this->table][$prkey]); 
         
             if($index_d > $maxcount){
             $maxcount = $index_d;
