@@ -39,10 +39,11 @@ private $table,
     
     private function run(){
     $this->params['table_dir'] = $this->params['dir'].$this->db.'/lang-'.$this->params['lang'].'/';  
-    
-        if($this->check_configs()){
-        $this->checkIndex();
+
+        if(!$this->check_configs()){
+        // Already created
         }
+    $this->checkIndex();
     }
     
     
@@ -217,6 +218,8 @@ private $table,
         foreach($this->cols[$table] as $colname){
         $this->rows[$table][$colname][$editId] = $this->itemTemp[$colname];
         }
+        
+    return $this->indexData[$table]['rows'];
     }
     
     
@@ -282,7 +285,7 @@ private $table,
         }
     
     $termC  = preg_match("#$term_txt#siu", $text);
-        
+        //echo $term_txt.'<br/>';
     return $termC;
     }
     
