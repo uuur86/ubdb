@@ -76,7 +76,9 @@ $ubdb->save();
  
  // When runnig below code, will be same all getting datas 
  
- $get1 = $ubdb->get("users", "username", array("ugur",'%','1') );
+ // ? Symbol holding only one character, % symbol holding multiple character as place. 
+ 
+ $get1 = $ubdb->get("users", "username", array("ugur",'?','1') );
  
  $get2 = $ubdb->get("users", "username", array("ug",'%','1') );
  
