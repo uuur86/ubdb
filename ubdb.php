@@ -263,7 +263,7 @@ private $table,
             continue;
             }
             elseif($term=='?'){
-            $term_txt .= '\w';
+            $term_txt .= '.';
             continue;
             }
             
