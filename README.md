@@ -1,7 +1,12 @@
-# ubdb
+# UBDB #
 JSON based database for PHP
 
-## Install ##
+## REQUIREMENTS ##
+
+PHP 4.6+
+
+## INSTALL ##
+
 Only include ubdb.php to your codes.
 
 ## USAGE ##
@@ -51,8 +56,22 @@ $ubdb->db('mydb', array(
                     )
                     
                 );
-                
-                
+ 
+ ## ADD ROW ##
+ 
+// Define a data for adding database
+    
+$ubdb->define('userid','ugur');
+
+// Table name to add
+
+$ubdb->add('cart');
+
+// Required for writing data 
+
+$ubdb->save();
+ 
+ ## GET ROW ##           
  // For any simple query for getting datas
  
  // When runnig below code, will be same all getting datas 
@@ -76,3 +95,8 @@ $ubdb->db('mydb', array(
                         );
  
  
+## DELETING ##
+
+$ubdb->delete($table,$id);
+
+
