@@ -39,31 +39,9 @@ private $table,
     
     private function run(){
     $this->params['table_dir'] = $this->params['dir'].$this->db.'/lang-'.$this->params['lang'].'/';  
-    $this->check_configs();
-    $this->checkIndex();
-    }
     
-    
-    private function checkIndex(){
-        
-        if(count($this->indexData[$this->table])>0){
-        return;
-        }
-        
-    $maxcount = 0;
-    
-        foreach ($this->cols[$this->table] as $prkey){
-        $this->rows[$this->table][$prkey] = $this->readdb($prkey);
-        $index_d            = count($this->rows[$this->table][$prkey])-1; 
-        
-            if($index_d > $maxcount){
-            $maxcount = $index_d;
-            }
-        }
-        
-        if($maxcount > 0){
-        $this->indexData[$this->table]['rows']       = $maxcount;
-        $this->indexData[$this->table]['cols']       = count($this->cols[$this->table]);
+        if($this->check_configs()){
+        $this->checkIndex();
         }
     }
     
@@ -76,6 +54,31 @@ private $table,
         
     return true;
     }
+    
+    
+    private function checkIndex(){
+        
+        if(count($this->indexData[$this->table])>0){
+        return;
+        }
+        
+    $maxcount = 0;
+    
+        foreach ($this->cols[$this->table] as $prkey){
+        $this->rows[$this->table][$prkey] = $this->readdb($this->table,$prkey);
+        $index_d = count($this->rows[$this->table][$prkey])-1; 
+        
+            if($index_d > $maxcount){
+            $maxcount = $index_d;
+            }
+        }
+        
+        if($maxcount > 0){
+        $this->indexData[$this->table]['rows'] = $maxcount;
+        $this->indexData[$this->table]['cols'] = count($this->cols[$this->table]);
+        }
+    }
+
     
     
     
@@ -140,7 +143,7 @@ private $table,
     
     public function codetoId($code, $vvArr = array()){
     $arrprcodes = $this->rows[$this->table]["productcode"];
-    $codeId_    = array_keys($arrprcodes,$code);
+    $codeId_    = array_keys($arrprcodes, $code);
         
         if(count($vvArr)>0){
             
@@ -163,8 +166,9 @@ private $table,
 
     
     private function writedb($table,$colname){
-     //   strpos_ub($haystach, $needle, $nth)
     $jsondatas = $this->rows[$table][$colname];
+        
+        if(count($jsondatas)<1){return false;}
     
         if($colname<>'index'){
             
@@ -174,7 +178,7 @@ private $table,
         }
     
     $dbfile = $this->dbfile($table,$colname);    
-    
+
     $jsondatas = json_encode($jsondatas);
     
         if(file_put_contents($dbfile,$jsondatas)){
@@ -194,26 +198,6 @@ private $table,
         
         if(isset($oldvals[$val])){
         return true;
-        }
-        
-    return false;
-    }
-    
-    
-    
-    private function doindex(){
-    $totalarr  = array();
-    
-        foreach($this->cols[$table] as $colname){
-        $totalarr[$colname] = $this->readdb($table,$colname);   
-        }
-        
-    $totalarr  = json_encode($totalarr);
-    
-    $rfilename = 'index.json';
-    
-        if(file_put_contents($rfilename, $totalarr)){
-        return true;    
         }
         
     return false;
@@ -243,7 +227,7 @@ private $table,
         foreach ($this->cols as $table=>$prkey){
 
             foreach($prkey as $prkey_){
-                
+           
                 if(strlen($prkey_)<3){continue;}
                 
             $this->writedb($table,$prkey_);
@@ -263,12 +247,77 @@ private $table,
     }
 
     
-    
-    
-    public function delete($line){
+    private function matches($text, $terms) {
+    $term_txt = '';    
         
-        foreach($this->cols as $delcolname){
-        $readeddata = $this->readdb($delcolname); 
+        if(!is_array($terms)){
+        $term_txt = $terms;
+        }
+        
+
+        foreach($terms as $term){
+            
+            if(empty($term)){continue;}
+            elseif($term=='%'){
+            $term_txt .= '.+';
+            continue;
+            }
+            elseif($term=='?'){
+            $term_txt .= '\w';
+            continue;
+            }
+            
+        $term_txt .= strtr($term, array(
+                                  '.'=>'\\.', 
+                                  '-'=>'\\-',
+                                  '['=>'\\[',
+                                  ']'=>'\\]',
+                                  '('=>'\\(',
+                                  ')'=>'\\)',
+                                  '#'=>'',
+                                  '+'=>'\\+',
+                                  '*'=>'\\*'
+                                    )
+                            );
+        }
+    
+    $termC  = preg_match("#$term_txt#siu", $text);
+        
+    return $termC;
+    }
+    
+    // We define table, column and search term(s)
+    // Will be return as array contains row key => how many time matched
+    private function search_term($table, $colname, $term){
+    $searchio   = $this->readdb( $table, $colname );
+
+    $returnrows = array();
+
+        if( !is_array($term) ){
+        $term   = ' '.$term.' ';
+        }
+
+        
+        foreach( $searchio as $drowname=>$drowval ){
+
+            if( empty($term) && count($term)<1 ){continue;}
+
+        $termcounter = $this->matches($drowval, $term);
+            
+            if( $termcounter>0 ){
+            $returnrows[$drowname] = $termcounter;
+            }
+        }
+        
+    return $returnrows;
+    }
+
+    
+    
+    public function delete($table, $line){
+        
+        foreach($this->cols[$table] as $delcolname){
+        $readeddata = $this->readdb($table, $delcolname); 
  
             if(isset($readeddata[$line])){
             unset($readeddata[$line]);
@@ -278,7 +327,7 @@ private $table,
             }
         
         $readeddata_json = json_encode($readeddata); 
-        $dbfile          = $this->dbfile($delcolname);
+        $dbfile          = $this->dbfile($table, $delcolname);
         file_put_contents($dbfile,$readeddata_json);
         }
         
@@ -287,36 +336,15 @@ private $table,
     
     
     
-    private function search_term($colname, $terms){
-    $searchio   = $this->readdb($colname);
-    $returnrows = array();
+    public function get($table, $colname, $searchterm, $proc = "="){
+    $rownumbs = $this->search_term($table, $colname, $searchterm); 
 
-        foreach ($searchio as $drowname=>$drowval){
-            
-            foreach($terms as $term){
-                
-                if(empty($term)){continue;}
-                
-            $termcounter   = substr_count($drowval, $term);
-            $termcounter_u = substr_count($drowval, strtoupper($term));
-            
-                if($termcounter>0 || $termcounter_u>0){
-                $returnrows[$drowname] = $termcounter;
-                }
-            }
-        }
-        
-    return $returnrows;
-    }
-    
-    public function get($colname, $searchterm, $proc = "="){
-    $rownumbs = $this->search_term($colname,$searchterm); 
     
         if($colname=="id"){
         $returnarr = array();
         
-            foreach ($this->cols as $tbcols){
-            $searchio_e         = $this->readdb($tbcols);
+            foreach ($this->cols[$table] as $tbcols){
+            $searchio_e         = $this->readdb($table, $tbcols);
             $returnarr[$tbcols] = $searchio_e[$searchterm];
             }
             
@@ -338,14 +366,14 @@ private $table,
         
         $returnarr[$roworder]=array();
         
-            foreach ($this->cols as $tbcols){
-            $searchio_e = $this->readdb($tbcols);
+            foreach ($this->cols[$table] as $tbcols){
+            $searchio_e = $this->readdb($table, $tbcols);
             $returnarr[$roworder][$tbcols] = $searchio_e[$rownumb];
             }
             
         $returnarr[$roworder]['id'] = $rownumb;
         }
-        
+  
     return $returnarr;
     }
     
@@ -353,21 +381,21 @@ private $table,
     $this->define("lang",$lang);
     }
     
-    public function db($name,$tableInfo) {
+    public function db($name, $tableInfo) {
     $this->db = $name;
     
         foreach ($tableInfo as $tableName=>$tableArr){
-        $this->define('table',$tableName);
+        $this->define('table', $tableName);
             
             foreach($tableArr as $colnames){
-            $this->define('col',$colnames);
+            $this->define('col', $colnames);
             }
         $this->run();
         }
     }
     
     
-    public function join($aArr1,$aArr2,$interSect1,$interSect2) {
+    public function join($aArr1, $aArr2, $interSect1, $interSect2) {
     $rArr = array();
     
         foreach($aArr1 as $aValArr){
@@ -375,7 +403,7 @@ private $table,
             foreach($aArr2 as $bValArr){
         
                 if($aValArr[$interSect1] == $bValArr[$interSect2]){
-                $rArr[] = array_merge($aValArr,$bValArr);
+                $rArr[] = array_merge($aValArr, $bValArr);
                 }
             }
         }
