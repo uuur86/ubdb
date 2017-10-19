@@ -1,5 +1,5 @@
 # UBDB #
-JSON based database for PHP
+JSON based database for PHP v0.328
 
 ## REQUIREMENTS ##
 
@@ -38,11 +38,18 @@ $ubdb->db('mydb', array(
 ```
  ## ADD ROW ##
 ```php
-// Define a data for adding database
-$ubdb->define('userid','ugur');
-// Table name to add
-$ubdb->add('cart');
-// Required for writing data
+
+// add a row
+$ubdb->add('cart', array('userid'=>'ugur'.$i));
+
+// or
+
+	// You can add multiple rows
+	for($i=0;$i<10;$i++){
+	$ubdb->add('cart', array('userid'=>'ugur'.$i));
+	}
+	
+// If you defined all rows, you can save for writing new datas.
 $ubdb->save();
 ```
  ## GET ROW ##  
