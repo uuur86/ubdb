@@ -4,8 +4,9 @@
  * UBDB JSON DATABASE CLASS
  * Fast, small, easy and flexible databases management processes using json database.
  * 
+ * @Package     ubdb
  * @Author      Uğur Biçer, <info@ugurbicer.com.tr>
- * @Version     0.326
+ * @Version     0.328
  * 
  */
 
@@ -41,7 +42,7 @@ private $table,
     $this->params['table_dir'] = $this->params['dir'].$this->db.'/lang-'.$this->params['lang'].'/';  
 
         if(!$this->check_configs()){
-        // Already created
+        // Files already created
         }
     $this->checkIndex();
     }
@@ -92,30 +93,7 @@ private $table,
         }  
         
     }
-    
-    
-    
-    public function define($key,$val){
-    
-        if($key=='col' && isset($this->table)){
-            
-            if(!isset($this->cols[$this->table])){
-            $this->cols[$this->table] = array('index');
-            }
 
-        $this->cols[$this->table][] = $val;
-        }
-        else if($key=='table'){
-        $this->table  = $val;
-        }
-        else if(isset($this->config_names[$key])){
-        $this->params[$key]   = $val;
-        }
-        else{
-        $this->itemTemp[$key] = $val;    
-        }
-           
-    } 
     
 
     
@@ -141,31 +119,6 @@ private $table,
     }
     
     
-    
-    public function codetoId($code, $vvArr = array()){
-    $arrprcodes = $this->rows[$this->table]["productcode"];
-    $codeId_    = array_keys($arrprcodes, $code);
-        
-        if(count($vvArr)>0){
-            
-            foreach($codeId_ as $codeId){
-            
-                if($this->rows[$this->table][$vvArr[0]][$codeId]==$vvArr[1]){
-                return $codeId;
-                }
-            }
-            
-        $codeId = 0;
-        }
-        else{
-        $codeId = $codeId[0];     
-        }
-
-    return $codeId;
-    }
-    
-
-    
     private function writedb($table,$colname){
     $jsondatas = $this->rows[$table][$colname];
         
@@ -188,66 +141,7 @@ private $table,
         
     return false;
     }
-    
-    
-    public function check($table,$colname,$val){
-    $oldvals = $this->readdb($table,$colname);
-    
-        if($oldvals && is_array($oldvals)){
-        $oldvals = array_flip($oldvals);
-        }
-        
-        if(isset($oldvals[$val])){
-        return true;
-        }
-        
-    return false;
-    }
-    
-    
 
-    public function add($table){
-    $this->indexData[$table]['rows']++;
-    
-    $editId = $this->indexData[$table]['rows'];
-            
-        if($this->edit_id != null){
-        $editId = $this->edit_id;
-        }
-        
-        foreach($this->cols[$table] as $colname){
-        $this->rows[$table][$colname][$editId] = $this->itemTemp[$colname];
-        }
-        
-    return $this->indexData[$table]['rows'];
-    }
-    
-    
-    
-    
-    public function save(){
-        
-        foreach ($this->cols as $table=>$prkey){
-
-            foreach($prkey as $prkey_){
-           
-                if(strlen($prkey_)<3){continue;}
-                
-            $this->writedb($table,$prkey_);
-            }
-        
-        $this->rows[$table]['index'] = $this->indexData[$table];
-        $this->writedb($table,'index');
-        }
-    }
-    
-    
-    
-    public function edit($table,$id){
-    $this->edit_id = $id;
-        
-    $this->add($table);
-    }
 
     
     private function matches($text, $terms) {
@@ -314,6 +208,99 @@ private $table,
         
     return $returnrows;
     }
+        
+    
+    
+    private function define($key, $val){
+    
+        if($key=='col' && isset($this->table)){
+            
+            if(!isset($this->cols[$this->table])){
+            $this->cols[$this->table] = array('index');
+            }
+
+        $this->cols[$this->table][] = $val;
+        }
+        else if($key=='table'){
+        $this->table  = $val;
+        }
+        else if(isset($this->config_names[$key])){
+        $this->params[$key]   = $val;
+        }
+        else{
+        $this->itemTemp[$key] = $val;    
+        }
+           
+    } 
+    
+    // We define a table namely $name 
+    // Table structure must be define in $tableinfo as a array 
+    public function db($name, $tableInfo) {
+    $this->db = $name;
+    
+        foreach ($tableInfo as $tableName=>$tableArr){
+        $this->define('table', $tableName);
+            
+            foreach($tableArr as $colnames){
+            $this->define('col', $colnames);
+            }
+        $this->run();
+        }
+    }
+    
+    
+    // Configure to language
+    public function lang($lang) {
+    $this->define("lang", $lang);
+    } 
+    
+    
+    
+    // Add new row
+    public function add($table, $rowArr){
+    $this->indexData[$table]['rows']++;
+    $editId = $this->indexData[$table]['rows'];
+            
+        if($this->edit_id != null){
+        $editId = $this->edit_id;
+        }
+        
+        foreach($this->cols[$table] as $colname){
+        $this->rows[$table][$colname][$editId] = $rowArr[$colname];
+        }
+    
+    return $this->indexData[$table]['rows'];
+    }
+    
+    
+    // Edit to exists row
+    public function edit($table, $rowArr, $id){
+    $this->edit_id = $id;
+    $this->add($table, $rowArr);
+    }    
+    
+    
+    // If we defined all rows
+    // must be save with this function.
+    // ..
+    // I didn't run in add function,
+    // because will be wasting resources 
+    // running one more time.
+    public function save(){
+        
+        foreach ($this->cols as $table=>$prkey){
+
+            foreach($prkey as $prkey_){
+           
+                if(strlen($prkey_)<3){continue;}
+                
+            $this->writedb($table,$prkey_);
+            }
+        
+        $this->rows[$table]['index'] = $this->indexData[$table];
+        $this->writedb($table,'index');
+        }
+    }
 
     
     
@@ -325,7 +312,7 @@ private $table,
             if(isset($readeddata[$line])){
             unset($readeddata[$line]);
             }
-            else if(!array_splice($readeddata, $line,1)){
+            else if(!array_splice($readeddata, $line, 1)){
             continue;
             }
         
@@ -338,7 +325,27 @@ private $table,
     }
     
     
+    // Check for value is exists
+    // Return as boolean
+    public function check($table, $colname, $val){
+    $oldvals = $this->readdb($table,$colname);
     
+        if($oldvals && is_array($oldvals)){
+        $oldvals = array_flip($oldvals);
+        }
+        
+        if(isset($oldvals[$val])){
+        return true;
+        }
+        
+    return false;
+    }    
+    
+    // $proc variable is not ready
+    // We can only searching for now
+    // You can define as a array to $searchterm
+    // Such as array('g','?','t') will be matching with get or got
+    // or array('f','%','t') will be matching with float or foot
     public function get($table, $colname, $searchterm, $proc = "="){
     $rownumbs = $this->search_term($table, $colname, $searchterm); 
 
@@ -379,23 +386,8 @@ private $table,
   
     return $returnarr;
     }
+
     
-    public function lang($lang) {
-    $this->define("lang",$lang);
-    }
-    
-    public function db($name, $tableInfo) {
-    $this->db = $name;
-    
-        foreach ($tableInfo as $tableName=>$tableArr){
-        $this->define('table', $tableName);
-            
-            foreach($tableArr as $colnames){
-            $this->define('col', $colnames);
-            }
-        $this->run();
-        }
-    }
     
     
     public function join($aArr1, $aArr2, $interSect1, $interSect2) {
