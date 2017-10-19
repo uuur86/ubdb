@@ -2,21 +2,27 @@
 
 include_once 'class.php';
 include_once 'inc.php';
+
+// If you want to add random lines
+// remove to below comment markers.
+
 /*
+
     for($t=1;$t<1000;$t++){
     $gId   = rand(1, 2000);
     $gNo   = rand(1, 2000);
     $gPass = rand(51234,99999935);
     
-    $ubdb->define('username','ugur'.$gNo);
-    $ubdb->define('password',$gPass);
-
-    $ubdb->add('users');
-    
-    $ubdb->define('userid','ugur'.$gId);
-    $ubdb->add('cart');
+    $ubdb->add( 'users', array(
+                         'username' => 'ugur'.$gNo,
+                         'password' => $gPass
+                         );
+    );
+               
+    $ubdb->add( 'cart', array('userid'=>'ugur'.$gId) );
     }
     */
+
 $ubdb->save();
     
 $get1 = $ubdb->get("users", "username", array("ugur",'%','1'));
