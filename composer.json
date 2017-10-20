@@ -1,0 +1,12 @@
+{
+	"description": "Lightweight PHP-JSON Database",
+	"name": "uuur86/ubdb",
+	"type": "library",
+	"license": "MIT",
+	"support": {
+		"source": "https://github.com/uuur86/ubdb"
+	},
+	"require": {
+		"php": ">=4.6.0"
+	}
+}
