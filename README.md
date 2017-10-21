@@ -3,7 +3,7 @@ JSON based database for PHP v0.328
 
 ## REQUIREMENTS ##
 
-PHP 4.6+
+PHP >= 5.2.0
 
 ## INSTALL ##
 
