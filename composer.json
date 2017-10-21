@@ -7,6 +7,6 @@
 		"source": "https://github.com/uuur86/ubdb"
 	},
 	"require": {
-		"php": ">=4.6.0"
+		"php": ">=5.2.0"
 	}
 }
