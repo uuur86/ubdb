@@ -6,9 +6,16 @@
 	"support": {
 		"source": "https://github.com/uuur86/ubdb"
 	},
+	"authors": [
+		{
+			"name": "Uğur Biçer",
+			"email": "info@ugurbicer.com.tr",
+			"role": "lead"
+		}
+	],
 	"autoload": {
-        	"psr-4": {
-          		"ubdb\\": "src/"
+    		"psr-4": {
+      			"ubdb\\": "src/"
 		}
 	},
 	"require": {
