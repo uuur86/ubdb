@@ -1,6 +1,6 @@
 <?php
 
-include_once 'class.php';
+include_once 'src/ubdb.php';
 include_once 'inc.php';
 
 // If you want to add random lines
