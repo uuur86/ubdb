@@ -9,7 +9,7 @@
  * @Version     0.328
  * 
  */
-
+namespace ubdb;
 
     if(class_exists('ubdb', false)){return;}
 
