@@ -6,6 +6,11 @@
 	"support": {
 		"source": "https://github.com/uuur86/ubdb"
 	},
+	"autoload": {
+        	"psr-4": {
+          		"ubdb\\": "src/"
+		}
+	},
 	"require": {
 		"php": ">=5.2.0"
 	}
