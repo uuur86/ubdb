@@ -2,7 +2,7 @@
 
 /**
  * UBDB JSON DATABASE CLASS
- * Fast, small, easy and flexible databases management processes using json database.
+ * Fast, small, easy and flexible databases management processes using json data type.
  *
  * @Package     ubdb
  * @Author      Uğur Biçer, <info@ugurbicer.com.tr>
@@ -129,7 +129,7 @@ private $table,
 
 
     private function dbfile($table,$colname){
-    $dbfile = $this->params['table_dir'].$table.'/'.$colname.'.json';
+    $dbfile = $this->params['table_dir'].$table.'/'.$colname.'.json.php';
     return $dbfile;
     }
 
@@ -140,6 +140,7 @@ private $table,
 
         if(file_exists($dbfile)){
         $file_content = file_get_contents($dbfile);
+        $file_content = substr($file_content,strpos($file_content,'?>')+2);
 
             if($file_content){
             $file_content = json_decode($file_content, TRUE);
@@ -166,7 +167,7 @@ private $table,
 
     $jsondatas = json_encode($jsondatas);
 
-        if(file_put_contents($dbfile, $jsondatas)){
+        if(file_put_contents($dbfile, '<?php die?>'.$jsondatas, LOCK_EX)){
         return true;
         }
 
