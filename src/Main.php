@@ -6,14 +6,14 @@
  *
  * @Package     ubdb
  * @Author      Uğur Biçer, <info@ugurbicer.com.tr>
- * @Version     0.329
+ * @Version     0.329.1
  *
  */
-namespace ubdb;
+namespace Ubdb;
 
-    if(class_exists('ubdb', false)){return;}
+    if( class_exists( "\\Ubdb\\Main", false ) ) { return; }
 
-class ubdb{
+class Main{
 
 private $table,
         $cols,
