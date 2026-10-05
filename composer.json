@@ -14,11 +14,12 @@
 		}
 	],
 	"autoload": {
-    		"psr-4": {
-      			"Ubdb\\": "src/"
+		"psr-4": {
+			"Ubdb\\": "src/"
 		}
 	},
 	"require": {
 		"php": ">=5.6.6"
-	}
+	},
+	"abandoned": "uuur86/fyndfast-db"
 }
